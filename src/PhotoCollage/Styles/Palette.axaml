@@ -1,0 +1,64 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <FontFamily x:Key="AppFont">Microsoft YaHei UI</FontFamily>
+
+  <!-- Brand / accent -->
+  <Color x:Key="AccentColor">#FF6B81</Color>
+  <Color x:Key="AccentDeepColor">#F2556F</Color>
+  <Color x:Key="AccentSoftColor">#FFEDF1</Color>
+  <SolidColorBrush x:Key="Accent" Color="#FF6B81" />
+  <SolidColorBrush x:Key="AccentDeep" Color="#F2556F" />
+  <SolidColorBrush x:Key="AccentSoft" Color="#FFEDF1" />
+  <SolidColorBrush x:Key="AccentBorder" Color="#FFC2CD" />
+  <SolidColorBrush x:Key="AccentText" Color="#E84C67" />
+
+  <LinearGradientBrush x:Key="AccentGradient" StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0" Color="#FF9A6C" />
+    <GradientStop Offset="1" Color="#FF5C8A" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="AccentGradientHover" StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Offset="0" Color="#FFAA80" />
+    <GradientStop Offset="1" Color="#FF6D97" />
+  </LinearGradientBrush>
+
+  <!-- Surfaces -->
+  <SolidColorBrush x:Key="BgApp" Color="#F2F3F6" />
+  <SolidColorBrush x:Key="BgPanel" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="BgTitleBar" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="BgCanvas" Color="#ECEEF3" />
+  <SolidColorBrush x:Key="BgSubtle" Color="#F7F8FA" />
+  <SolidColorBrush x:Key="BgHover" Color="#F1F2F6" />
+  <SolidColorBrush x:Key="BgSunken" Color="#F5F6F9" />
+
+  <!-- Lines -->
+  <SolidColorBrush x:Key="Stroke" Color="#E6E8EF" />
+  <SolidColorBrush x:Key="StrokeStrong" Color="#D7DAE3" />
+  <SolidColorBrush x:Key="StrokeSoft" Color="#EFF1F5" />
+
+  <!-- Text -->
+  <SolidColorBrush x:Key="TextPrimary" Color="#20242E" />
+  <SolidColorBrush x:Key="TextSecondary" Color="#5E6573" />
+  <SolidColorBrush x:Key="TextMuted" Color="#9AA1AE" />
+  <SolidColorBrush x:Key="TextOnAccent" Color="#FFFFFF" />
+
+  <!-- Status -->
+  <SolidColorBrush x:Key="Success" Color="#25B58B" />
+  <SolidColorBrush x:Key="Danger" Color="#EF5B6B" />
+
+  <!-- Soft shadow used by cards -->
+  <BoxShadows x:Key="CardShadow">0 6 22 0 #12000000</BoxShadows>
+  <BoxShadows x:Key="FloatShadow">0 10 30 0 #1F000000</BoxShadows>
+
+  <!-- Fluent theme accent overrides -->
+  <Color x:Key="SystemAccentColor">#FF6B81</Color>
+  <Color x:Key="SystemAccentColorLight1">#FF8A9B</Color>
+  <Color x:Key="SystemAccentColorLight2">#FFAAB7</Color>
+  <Color x:Key="SystemAccentColorLight3">#FFCAD2</Color>
+  <Color x:Key="SystemAccentColorDark1">#EE5A70</Color>
+  <Color x:Key="SystemAccentColorDark2">#D94B60</Color>
+  <Color x:Key="SystemAccentColorDark3">#C13C51</Color>
+  <SolidColorBrush x:Key="SystemControlHighlightAccentBrush" Color="#FF6B81" />
+  <SolidColorBrush x:Key="SystemControlForegroundAccentBrush" Color="#F2556F" />
+
+</ResourceDictionary>

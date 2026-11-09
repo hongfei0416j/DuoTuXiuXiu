@@ -1,0 +1,536 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:DuoTuXiuXiu.Controls"
+        xmlns:conv="using:DuoTuXiuXiu.Converters"
+        x:Class="DuoTuXiuXiu.Views.MainWindow"
+        Title="多图秀秀 · 拼图"
+        Width="1440" Height="900"
+        MinWidth="1200" MinHeight="780"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgApp}"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="46"
+        DragDrop.AllowDrop="True">
+
+  <Window.Resources>
+    <conv:EnumToBoolConverter x:Key="Eq" />
+  </Window.Resources>
+
+  <Window.Styles>
+    <Style Selector="RadioButton.countPill">
+      <Setter Property="MinWidth" Value="26" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Padding" Value="5,0" />
+      <Setter Property="Margin" Value="0,0,3,0" />
+      <Setter Property="CornerRadius" Value="7" />
+    </Style>
+    <Style Selector="RadioButton.ratioChip">
+      <Setter Property="Width" Value="55" />
+      <Setter Property="Padding" Value="0,6" />
+      <Setter Property="Margin" Value="0,0,4,4" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ListBox.film ListBoxItem">
+      <Setter Property="Padding" Value="3" />
+      <Setter Property="Margin" Value="0,0,8,0" />
+    </Style>
+    <Style Selector="TextBlock.rowLabel">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Foreground" Value="{DynamicResource TextSecondary}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Width" Value="52" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,*">
+
+    <!-- ============ 自定义标题栏 ============ -->
+    <Border Grid.Row="0"
+            Background="{DynamicResource BgTitleBar}"
+            BorderBrush="{DynamicResource Stroke}"
+            BorderThickness="0,0,0,1">
+      <Grid Name="TitleBar"
+            ColumnDefinitions="Auto,*,Auto"
+            Height="46"
+            PointerPressed="TitleBar_PointerPressed">
+
+        <StackPanel Orientation="Horizontal" Spacing="9" Margin="16,0,0,0" VerticalAlignment="Center">
+          <Border Width="26" Height="26" CornerRadius="8" Background="{DynamicResource AccentGradient}">
+            <TextBlock Text="拼" Foreground="White" FontSize="13" FontWeight="Bold"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <TextBlock Text="多图秀秀" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" />
+          <Border Width="1" Height="16" Background="{DynamicResource Stroke}" Margin="3,0" />
+          <ComboBox Width="88" MinHeight="28" Height="28"
+                    ItemsSource="{Binding ModeOptions}"
+                    SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
+                    VerticalAlignment="Center" />
+        </StackPanel>
+
+        <TextBlock Grid.Column="1" Text="{Binding StatusText}" Classes="muted"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis" MaxWidth="540" Margin="16,0" />
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
+                    Margin="0,0,12,0" VerticalAlignment="Center">
+          <Button Classes="primary" Content="保存" MinHeight="30" Padding="20,6"
+                  Command="{Binding ExportCommand}" />
+          <Button Classes="bar" Content="—" Click="OnMinimizeClick" ToolTip.Tip="最小化" />
+          <Button Classes="bar" Content="▢" Click="OnMaximizeClick" ToolTip.Tip="最大化 / 还原" />
+          <Button Classes="bar close" Content="✕" Click="OnCloseClick" ToolTip.Tip="关闭" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- ============ 三段式主体 ============ -->
+    <Grid Grid.Row="1" ColumnDefinitions="262,*,304" Margin="14,12,14,14">
+
+      <!-- 左栏 -->
+      <Border Grid.Column="0" Classes="panel" Padding="12" Margin="0,0,12,0">
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+          <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="2,0,2,10">
+            <StackPanel>
+              <TextBlock Text="拼图版式" Classes="h2" />
+              <TextBlock Text="{Binding LayoutInfoText}" Classes="muted" Margin="0,3,0,0" />
+            </StackPanel>
+            <Border Grid.Column="1" Classes="badge" VerticalAlignment="Top">
+              <TextBlock Text="{Binding ImageCountText}" />
+            </Border>
+          </Grid>
+
+          <StackPanel Grid.Row="1" Spacing="8">
+            <TextBlock Text="张数" Classes="caption" />
+
+            <WrapPanel>
+              <RadioButton Classes="pill countPill" GroupName="CountPills" Content="2"
+                           IsChecked="{Binding SelectedCount, Converter={StaticResource Eq}, ConverterParameter=2, Mode=TwoWay}" />
+              <RadioButton Classes="pill countPill" GroupName="CountPills" Content="3"
+                           IsChecked="{Binding SelectedCount, Converter={StaticResource Eq}, ConverterParameter=3, Mode=TwoWay}" />
+              <RadioButton Classes="pill countPill" GroupName="CountPills" Content="4"
+                           IsChecked="{Binding SelectedCount, Converter={StaticResource Eq}, ConverterParameter=4, Mode=TwoWay}" />
+              <RadioButton Classes="pill countPill" GroupName="CountPills" Content="5"
+                           IsChecked="{Binding SelectedCount, Converter={StaticResource Eq}, ConverterParameter=5, Mode=TwoWay}" />
+              <ComboBox Width="74" MinHeight="28" Height="28" VerticalAlignment="Top"
+                        ItemsSource="{Binding CountOptions}"
+                        SelectedItem="{Binding SelectedCount, Mode=TwoWay}"
+                        ToolTip.Tip="可选择 2 - 100 任意张数" />
+            </WrapPanel>
+
+            <Border Classes="sectionCard" Padding="10">
+              <StackPanel Spacing="7">
+                <TextBlock Text="{Binding LayoutStateText}" FontSize="12" FontWeight="SemiBold" />
+                <Grid ColumnDefinitions="Auto,*,Auto,*,Auto">
+                  <TextBlock Text="行" Classes="rowLabel" Width="18" />
+                  <TextBox Grid.Column="1" Text="{Binding RowsInput, Mode=TwoWay}"
+                           MinHeight="26" Padding="7,3" />
+                  <TextBlock Grid.Column="2" Text="列" Classes="rowLabel" Width="24" Margin="8,0,0,0" />
+                  <TextBox Grid.Column="3" Text="{Binding ColumnsInput, Mode=TwoWay}"
+                           MinHeight="26" Padding="7,3" />
+                  <Button Grid.Column="4" Content="应用" Classes="tiny" Margin="8,0,0,0"
+                          Command="{Binding ApplyGridCommand}" />
+                </Grid>
+                <Button Content="恢复自动版式" Classes="tiny" HorizontalAlignment="Stretch"
+                        Command="{Binding RestoreAutoLayoutCommand}" />
+                <TextBlock Text="{Binding LayoutHintText}" Classes="muted" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,12,0,4">
+            <RadioButton Classes="tab" GroupName="LayoutCategory" Content="自定义"
+                         IsChecked="{Binding LayoutCategory, Converter={StaticResource Eq}, ConverterParameter=custom, Mode=TwoWay}" />
+            <RadioButton Classes="tab" GroupName="LayoutCategory" Content="异形"
+                         IsChecked="{Binding LayoutCategory, Converter={StaticResource Eq}, ConverterParameter=asymmetric, Mode=TwoWay}" />
+          </StackPanel>
+
+          <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding LayoutGroups}" Margin="0,6,0,0" HorizontalAlignment="Stretch">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Margin="0,0,0,12" HorizontalAlignment="Stretch">
+                    <Grid ColumnDefinitions="Auto,*">
+                      <TextBlock Text="{Binding Header}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="{Binding Subtitle}" Classes="tiny"
+                                 VerticalAlignment="Center" Margin="8,0,0,0" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Options}" Margin="0,6,0,0" HorizontalAlignment="Stretch">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Button Classes="layoutCard"
+                                  Classes.selected="{Binding IsSelected}"
+                                  Margin="0,0,8,8"
+                                  Command="{Binding DataContext.SelectLayoutCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                  CommandParameter="{Binding}"
+                                  ToolTip.Tip="{Binding Description}">
+                            <Grid RowDefinitions="*,Auto">
+                              <Grid>
+                                <controls:LayoutThumb Spec="{Binding Spec}"
+                                                      Count="{Binding GroupCount}"
+                                                      AspectRatio="{Binding $parent[Window].DataContext.CanvasAspect}" />
+                                <Border IsVisible="{Binding IsSelected}"
+                                        Width="18" Height="18" CornerRadius="9"
+                                        Background="{DynamicResource AccentDeep}"
+                                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                                        Margin="0,0,0,0">
+                                  <TextBlock Text="✓" Foreground="White" FontSize="10" FontWeight="Bold"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                              </Grid>
+                              <TextBlock Grid.Row="1" Text="{Binding Name}" FontSize="10"
+                                         HorizontalAlignment="Center" Margin="0,4,0,0"
+                                         TextTrimming="CharacterEllipsis" />
+                            </Grid>
+                          </Button>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+
+          <Button Grid.Row="4" Classes="tiny" HorizontalAlignment="Stretch" Margin="0,8,0,0"
+                  Content="⇄ 随机切换布局" Command="{Binding RandomizeLayoutCommand}" />
+        </Grid>
+      </Border>
+
+      <!-- 中间画布 -->
+      <Grid Grid.Column="1" RowDefinitions="*,Auto">
+
+        <Border Grid.Row="0" Classes="canvasHost" ClipToBounds="True">
+          <Grid>
+            <controls:CollagePreview Scene="{Binding Scene}"
+                                     ViewZoom="{Binding PreviewZoom}"
+                                     ViewRotation="{Binding PreviewRotation}"
+                                     FlipHorizontal="{Binding FlipHorizontal}"
+                                     ViewFill="{Binding FillCanvas}" />
+
+            <Border HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,18"
+                    Background="#F5FFFFFF" CornerRadius="12" Padding="6"
+                    BorderBrush="{DynamicResource StrokeSoft}" BorderThickness="1"
+                    BoxShadow="0 10 30 0 #1F000000">
+              <StackPanel Orientation="Horizontal" Spacing="2">
+                <Button Classes="bar" Content="−" Command="{Binding ZoomOutCommand}" ToolTip.Tip="缩小预览" />
+                <TextBlock Text="{Binding ZoomPercentText}" Classes="caption" Width="46"
+                           TextAlignment="Center" VerticalAlignment="Center" />
+                <Button Classes="bar" Content="+" Command="{Binding ZoomInCommand}" ToolTip.Tip="放大预览" />
+                <Border Width="1" Height="16" Background="{DynamicResource Stroke}" Margin="5,0" />
+                <Button Classes="bar" Content="↺" Command="{Binding RotateBackCommand}" ToolTip.Tip="逆时针旋转" />
+                <Button Classes="bar" Content="↻" Command="{Binding RotateCommand}" ToolTip.Tip="顺时针旋转" />
+                <Button Classes="bar" Content="翻转" FontSize="11" Width="42" Command="{Binding FlipCommand}" ToolTip.Tip="水平翻转" />
+                <ToggleButton Classes="bar" Content="填充" FontSize="11" Width="42" IsChecked="{Binding FillCanvas, Mode=TwoWay}" ToolTip.Tip="填充画布" />
+                <Button Classes="bar" Content="重置" FontSize="11" Width="42" Command="{Binding ResetPreviewCommand}" ToolTip.Tip="重置视图" />
+              </StackPanel>
+            </Border>
+          </Grid>
+        </Border>
+
+        <!-- 图片底片条 -->
+        <Border Grid.Row="1" Classes="panel" Padding="10" Margin="0,12,0,0">
+          <Grid RowDefinitions="Auto,Auto">
+            <Grid ColumnDefinitions="Auto,Auto,*" Margin="2,0,2,8">
+              <TextBlock Text="图片" Classes="section" VerticalAlignment="Center" />
+              <Border Grid.Column="1" Classes="badge" Margin="8,0,0,0">
+                <TextBlock Text="{Binding ImageCountText}" />
+              </Border>
+              <WrapPanel Grid.Column="2" HorizontalAlignment="Right">
+                <Button Classes="tiny" Content="＋ 导入" Margin="0,0,6,0" Command="{Binding ImportFilesCommand}" />
+                <Button Classes="tiny" Content="文件夹" Margin="0,0,6,0" Command="{Binding ImportFolderCommand}" />
+                <Button Classes="tiny" Content="替换" Margin="0,0,6,0" Command="{Binding ReplaceSelectedCommand}" />
+                <Button Classes="tiny" Content="删除" Margin="0,0,6,0" Command="{Binding RemoveSelectedCommand}" />
+                <Button Classes="tiny" Content="清空" Command="{Binding ClearAllCommand}" />
+              </WrapPanel>
+            </Grid>
+
+            <ListBox Grid.Row="1" Name="FilmStrip" Classes="film"
+                     ItemsSource="{Binding Images}"
+                     SelectedItem="{Binding SelectedImage, Mode=TwoWay}"
+                     Height="86"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                     PointerPressed="FilmStrip_PointerPressed"
+                     PointerMoved="FilmStrip_PointerMoved"
+                     PointerReleased="FilmStrip_PointerReleased"
+                     PointerCaptureLost="FilmStrip_PointerCaptureLost">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <Grid Width="96" Height="66">
+                    <Border CornerRadius="8" ClipToBounds="True" Background="{DynamicResource BgSunken}">
+                      <Image Source="{Binding Bitmap}" Stretch="UniformToFill" />
+                    </Border>
+                    <Border Background="#B3000000" CornerRadius="6" Padding="4,0"
+                            HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3">
+                      <TextBlock Text="{Binding OrderText}" FontSize="9" Foreground="White" />
+                    </Border>
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Grid>
+        </Border>
+      </Grid>
+
+      <!-- 右栏：画布设置 -->
+      <Border Grid.Column="2" Classes="panel" Margin="12,0,0,0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel Margin="14" Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="画布设置" Classes="h2" />
+              <Border Grid.Column="1" Classes="badge">
+                <TextBlock Text="{Binding CanvasBackgroundText}" />
+              </Border>
+            </Grid>
+
+            <!-- 尺寸 -->
+            <Border Classes="sectionCard">
+              <StackPanel Spacing="9">
+                <TextBlock Text="画布尺寸" Classes="section" />
+                <Grid ColumnDefinitions="*,Auto,*">
+                  <TextBox Text="{Binding CanvasWidth, Mode=TwoWay}" />
+                  <ToggleButton Grid.Column="1" Classes="lockBtn" Margin="6,0"
+                                Content="🔒" IsChecked="{Binding IsCanvasRatioLocked, Mode=TwoWay}"
+                                ToolTip.Tip="锁定宽高比" />
+                  <TextBox Grid.Column="2" Text="{Binding CanvasHeight, Mode=TwoWay}" />
+                </Grid>
+                <TextBlock Text="宽 × 高，单位 px" Classes="muted" />
+
+                <WrapPanel Margin="0,2,0,0">
+                  <RadioButton Classes="chip ratioChip" GroupName="RatioPills" Content="3:4"
+                               IsChecked="{Binding RatioKey, Converter={StaticResource Eq}, ConverterParameter=3:4, Mode=TwoWay}" />
+                  <RadioButton Classes="chip ratioChip" GroupName="RatioPills" Content="1:1"
+                               IsChecked="{Binding RatioKey, Converter={StaticResource Eq}, ConverterParameter=1:1, Mode=TwoWay}" />
+                  <RadioButton Classes="chip ratioChip" GroupName="RatioPills" Content="4:3"
+                               IsChecked="{Binding RatioKey, Converter={StaticResource Eq}, ConverterParameter=4:3, Mode=TwoWay}" />
+                  <RadioButton Classes="chip ratioChip" GroupName="RatioPills" Content="2:3"
+                               IsChecked="{Binding RatioKey, Converter={StaticResource Eq}, ConverterParameter=2:3, Mode=TwoWay}" />
+                  <RadioButton Classes="chip ratioChip" GroupName="RatioPills" Content="4:5"
+                               IsChecked="{Binding RatioKey, Converter={StaticResource Eq}, ConverterParameter=4:5, Mode=TwoWay}" />
+                  <RadioButton Classes="chip ratioChip" GroupName="RatioPills" Content="3:2"
+                               IsChecked="{Binding RatioKey, Converter={StaticResource Eq}, ConverterParameter=3:2, Mode=TwoWay}" />
+                  <RadioButton Classes="chip ratioChip" GroupName="RatioPills" Content="9:16"
+                               IsChecked="{Binding RatioKey, Converter={StaticResource Eq}, ConverterParameter=9:16, Mode=TwoWay}" />
+                  <RadioButton Classes="chip ratioChip" GroupName="RatioPills" Content="16:9"
+                               IsChecked="{Binding RatioKey, Converter={StaticResource Eq}, ConverterParameter=16:9, Mode=TwoWay}" />
+                </WrapPanel>
+              </StackPanel>
+            </Border>
+
+            <!-- 间距 / 圆角 / 无缝 -->
+            <Border Classes="sectionCard">
+              <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel>
+                    <TextBlock Text="无缝模式" Classes="section" />
+                    <TextBlock Text="间距与外边距一键归零" Classes="muted" Margin="0,2,0,0" />
+                  </StackPanel>
+                  <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsSeamless, Mode=TwoWay}"
+                                OnContent="开" OffContent="关" VerticalAlignment="Center" />
+                </Grid>
+
+                <Border Classes="divider" />
+
+                <Grid ColumnDefinitions="Auto,*,46">
+                  <TextBlock Text="外边框" Classes="rowLabel" />
+                  <controls:ValueSlider Grid.Column="1" Minimum="0" Maximum="80"
+                                        Value="{Binding Padding, Mode=TwoWay}" Margin="8,0" />
+                  <TextBox Grid.Column="2" Text="{Binding Padding, Mode=TwoWay, StringFormat={}{0:0}}"
+                           MinHeight="26" Padding="6,3" />
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*,46">
+                  <TextBlock Text="间距" Classes="rowLabel" />
+                  <controls:ValueSlider Grid.Column="1" Minimum="0" Maximum="60"
+                                        Value="{Binding Gap, Mode=TwoWay}" Margin="8,0" />
+                  <TextBox Grid.Column="2" Text="{Binding Gap, Mode=TwoWay, StringFormat={}{0:0}}"
+                           MinHeight="26" Padding="6,3" />
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*,46">
+                  <TextBlock Text="圆角" Classes="rowLabel" />
+                  <controls:ValueSlider Grid.Column="1" Minimum="0" Maximum="80"
+                                        Value="{Binding CornerRadius, Mode=TwoWay}" Margin="8,0" />
+                  <TextBox Grid.Column="2" Text="{Binding CornerRadius, Mode=TwoWay, StringFormat={}{0:0}}"
+                           MinHeight="26" Padding="6,3" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <!-- 填充方式 -->
+            <Border Classes="sectionCard">
+              <StackPanel Spacing="8">
+                <TextBlock Text="图片填充" Classes="section" />
+                <Grid ColumnDefinitions="*,*">
+                  <RadioButton Classes="chip" GroupName="FillModes" Content="填充裁切"
+                               Margin="0,0,4,0" HorizontalContentAlignment="Center"
+                               IsChecked="{Binding FillMode, Converter={StaticResource Eq}, ConverterParameter=Crop, Mode=TwoWay}" />
+                  <RadioButton Grid.Column="1" Classes="chip" GroupName="FillModes" Content="完整适应"
+                               Margin="0,0,0,0" HorizontalContentAlignment="Center"
+                               IsChecked="{Binding FillMode, Converter={StaticResource Eq}, ConverterParameter=Fit, Mode=TwoWay}" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <!-- 背景 -->
+            <Border Classes="sectionCard">
+              <StackPanel Spacing="9">
+                <TextBlock Text="画布背景" Classes="section" />
+
+                <Border Background="{DynamicResource BgCanvas}" CornerRadius="8" Padding="3">
+                  <Grid ColumnDefinitions="*,*">
+                    <RadioButton Classes="segment" GroupName="BgTabs" Content="颜色"
+                                 IsChecked="{Binding BackgroundTab, Converter={StaticResource Eq}, ConverterParameter=color, Mode=TwoWay}" />
+                    <RadioButton Grid.Column="1" Classes="segment" GroupName="BgTabs" Content="图片"
+                                 IsChecked="{Binding BackgroundTab, Converter={StaticResource Eq}, ConverterParameter=image, Mode=TwoWay}" />
+                  </Grid>
+                </Border>
+
+                <StackPanel Spacing="8"
+                            IsVisible="{Binding BackgroundTab, Converter={StaticResource Eq}, ConverterParameter=color}">
+                  <ItemsControl ItemsSource="{Binding Swatches}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Button Classes="swatch" Margin="0,0,6,6"
+                                Background="{Binding Brush}"
+                                ToolTip.Tip="{Binding Name}"
+                                Command="{Binding DataContext.SetBackgroundCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Button Classes="tiny" Content="取色器" Command="{Binding ToggleColorPickerCommand}" />
+                    <TextBlock Grid.Column="1" Text="{Binding CanvasBackgroundText}" Classes="muted"
+                               VerticalAlignment="Center" Margin="8,0" />
+                    <Button Grid.Column="2" Classes="link" Content="恢复原始背景"
+                            Command="{Binding RestoreBackgroundCommand}" />
+                  </Grid>
+
+                  <ColorPicker IsVisible="{Binding IsColorPickerOpen}"
+                               Color="{Binding CanvasBackground, Mode=TwoWay}"
+                               IsAlphaEnabled="False" IsAlphaVisible="False"
+                               IsColorPaletteVisible="False"
+                               HorizontalAlignment="Stretch" />
+                </StackPanel>
+
+                <StackPanel Spacing="8"
+                            IsVisible="{Binding BackgroundTab, Converter={StaticResource Eq}, ConverterParameter=image}">
+                  <Button Classes="tiny" Content="选择背景图片" HorizontalAlignment="Left"
+                          Command="{Binding PickBackgroundImageCommand}" />
+                  <Border CornerRadius="8" Height="88" Background="{DynamicResource BgSunken}"
+                          ClipToBounds="True" IsVisible="{Binding HasBackgroundImage}">
+                    <Image Source="{Binding BackgroundImage}" Stretch="UniformToFill" />
+                  </Border>
+                  <TextBlock Text="{Binding BackgroundImageName}" Classes="muted" TextTrimming="CharacterEllipsis" />
+                  <Button Classes="link" Content="恢复原始背景" HorizontalAlignment="Left"
+                          Command="{Binding RestoreBackgroundCommand}" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <!-- 单张微调 -->
+            <Border Classes="sectionCard" IsVisible="{Binding HasSelection}">
+              <StackPanel Spacing="9">
+                <TextBlock Text="{Binding ImageAdjustTitle}" Classes="section" TextTrimming="CharacterEllipsis" />
+
+                <Grid ColumnDefinitions="Auto,*,46">
+                  <TextBlock Text="缩放" Classes="rowLabel" />
+                  <controls:ValueSlider Grid.Column="1" Minimum="0.2" Maximum="4"
+                                        Value="{Binding SelectedImage.Zoom, Mode=TwoWay}" Margin="8,0" />
+                  <TextBox Grid.Column="2" Text="{Binding SelectedImage.Zoom, Mode=TwoWay, StringFormat={}{0:0.00}}"
+                           MinHeight="26" Padding="6,3" />
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*,46">
+                  <TextBlock Text="水平" Classes="rowLabel" />
+                  <controls:ValueSlider Grid.Column="1" Minimum="-0.5" Maximum="0.5"
+                                        Value="{Binding SelectedImage.OffsetX, Mode=TwoWay}" Margin="8,0" />
+                  <TextBox Grid.Column="2" Text="{Binding SelectedImage.OffsetX, Mode=TwoWay, StringFormat={}{0:0.00}}"
+                           MinHeight="26" Padding="6,3" />
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*,46">
+                  <TextBlock Text="垂直" Classes="rowLabel" />
+                  <controls:ValueSlider Grid.Column="1" Minimum="-0.5" Maximum="0.5"
+                                        Value="{Binding SelectedImage.OffsetY, Mode=TwoWay}" Margin="8,0" />
+                  <TextBox Grid.Column="2" Text="{Binding SelectedImage.OffsetY, Mode=TwoWay, StringFormat={}{0:0.00}}"
+                           MinHeight="26" Padding="6,3" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*,*">
+                  <Button Classes="tiny" Content="重置" Margin="0,0,4,0" Command="{Binding ResetAdjustCommand}" />
+                  <Button Grid.Column="1" Classes="tiny" Content="替换" Margin="0,0,4,0" Command="{Binding ReplaceSelectedCommand}" />
+                  <Button Grid.Column="2" Classes="tiny" Content="删除" Command="{Binding RemoveSelectedCommand}" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <!-- 导出 -->
+            <Border Classes="sectionCard">
+              <StackPanel Spacing="9">
+                <TextBlock Text="导出" Classes="section" />
+
+                <Grid ColumnDefinitions="*,*">
+                  <RadioButton Classes="chip" GroupName="ExportFormats" Content="PNG"
+                               Margin="0,0,4,0" HorizontalContentAlignment="Center"
+                               IsChecked="{Binding ExportFormat, Converter={StaticResource Eq}, ConverterParameter=PNG, Mode=TwoWay}" />
+                  <RadioButton Grid.Column="1" Classes="chip" GroupName="ExportFormats" Content="JPG"
+                               Margin="0,0,0,0" HorizontalContentAlignment="Center"
+                               IsChecked="{Binding ExportFormat, Converter={StaticResource Eq}, ConverterParameter=JPG, Mode=TwoWay}" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*,*">
+                  <RadioButton Classes="chip" GroupName="ExportScales" Content="1x"
+                               Margin="0,0,4,0" HorizontalContentAlignment="Center"
+                               IsChecked="{Binding ExportScaleMode, Converter={StaticResource Eq}, ConverterParameter=1x, Mode=TwoWay}" />
+                  <RadioButton Grid.Column="1" Classes="chip" GroupName="ExportScales" Content="2x"
+                               Margin="0,0,4,0" HorizontalContentAlignment="Center"
+                               IsChecked="{Binding ExportScaleMode, Converter={StaticResource Eq}, ConverterParameter=2x, Mode=TwoWay}" />
+                  <RadioButton Grid.Column="2" Classes="chip" GroupName="ExportScales" Content="3x"
+                               Margin="0,0,0,0" HorizontalContentAlignment="Center"
+                               IsChecked="{Binding ExportScaleMode, Converter={StaticResource Eq}, ConverterParameter=3x, Mode=TwoWay}" />
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*,46" IsVisible="{Binding IsJpeg}">
+                  <TextBlock Text="质量" Classes="rowLabel" />
+                  <controls:ValueSlider Grid.Column="1" Minimum="40" Maximum="100"
+                                        Value="{Binding JpegQuality, Mode=TwoWay}" Margin="8,0" />
+                  <TextBox Grid.Column="2" Text="{Binding JpegQuality, Mode=TwoWay, StringFormat={}{0:0}}"
+                           MinHeight="26" Padding="6,3" />
+                </Grid>
+
+                <CheckBox Content="导出后打开所在文件夹"
+                          IsChecked="{Binding OpenFolderAfterExport, Mode=TwoWay}" />
+
+                <TextBlock Text="{Binding ExportHint}" Classes="muted" />
+
+                <Button Classes="primary" Content="导出拼图" HorizontalAlignment="Stretch"
+                        Command="{Binding ExportCommand}" IsEnabled="{Binding !IsBusy}" />
+              </StackPanel>
+            </Border>
+
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+  </Grid>
+</Window>
